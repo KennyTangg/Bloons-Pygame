@@ -1,4 +1,4 @@
-import pygame 
+import pygame
 from monkey import Monkey
 from balloons import Balloons
 from map import Map
@@ -17,7 +17,7 @@ put_monkey = False
 buy_monkey = 150
 upgrade_monkey = 100
 sell_monkey = 120
-spawn_cooldown = 400
+spawn_cooldown = 500
 message_duration = 2000
 game_outcome = 0
 total_wave = 20
@@ -125,7 +125,7 @@ while running:
                 map.game_speed = 2
 
 
-            if pygame.time.get_ticks() - last_balloon_spawn > spawn_cooldown:
+            if pygame.time.get_ticks() - last_balloon_spawn > (spawn_cooldown / map.game_speed):
                 if map.spawned_balloons < len(map.balloon_list):
                     balloon_type = map.balloon_list[map.spawned_balloons]
                     balloons = Balloons(balloon_type,balloons_images,path)
