@@ -7,10 +7,18 @@ from monkeyMenu import MonkeyMenu
 
 WIDTH,HEIGHT = 1280,720
 pygame.init()
+pygame.mixer.init()
 pygame.display.set_caption("Tower Defense Window")
 screen = pygame.display.set_mode((1280,720))
 clock = pygame.time.Clock()
 font = pygame.font.Font("assets/font/Pixeltype.ttf",50)
+
+# Sound
+pop_sound_effect = pygame.mixer.Sound("assets/sound/popSound.mp3")
+pop_sound_effect.set_volume(0.5)
+game_music = pygame.mixer.Sound("assets/sound/gameMusic.mp3")
+game_music.play(-1)
+game_music.set_volume(0.1)
 
 #Map
 map_image = pygame.image.load("assets/Images/Map/map2.png").convert()
@@ -28,8 +36,8 @@ balloons_images ={
     "very strong":pygame.image.load("assets/Images/Balloons/Balloons_Yellow.png").convert_alpha()
 }
 path = [
-    (-50,270),(490,270),(490,130),(320,130),(320,550),
-    (150,550),(150,410),(650,410),(650,260),
+    (-50,280),(490,280),(490,135),(320,135),(320,565),
+    (150,565),(150,415),(650,415),(650,260),
     (750,260),(750,530),(460,530),(460,750)]
 
 #monkey menu
@@ -40,10 +48,8 @@ sell_button = pygame.image.load("assets/Images/GameMenu/sell.png").convert_alpha
 start_button = pygame.image.load("assets/Images/GameMenu/beginButton.png").convert_alpha()
 fast_forward_button = pygame.image.load("assets/Images/GameMenu/FastForward.png").convert_alpha()
 restart_button = pygame.image.load("assets/Images/GameMenu/restartButton.png").convert_alpha()
-
 health_image = pygame.image.load("assets/Images/GameMenu/Health.png").convert_alpha()
 coin_image = pygame.image.load("assets/Images/GameMenu/Coin.png").convert_alpha()
-
 play_image = pygame.image.load("assets/Images/GameMenu/playButton.png").convert_alpha()
 
 def draw_text(text, text_color, outline_color, x, y):
@@ -101,6 +107,8 @@ def game():
     running = True
 
     while running:
+        pygame.mixer.music.load("assets/sound/gameMusic.mp3")
+        pygame.mixer.music.play(-1)
         if game_over == False:
             if map.health <= 0:
                 game_over = True
@@ -121,7 +129,6 @@ def game():
                     wave_started = True
             else:
                 map.game_speed = 1
-
                 if fastforwardbutton.draw(screen):
                     map.game_speed = 2
 
@@ -166,8 +173,18 @@ def game():
                         if map.money >= upgrade_monkey:
                             selected_monkey.upgrade()
                             map.money -= upgrade_monkey
+                            print(selected_monkey.upgrade_level)
                 screen.blit(coin_image,(1140,150))
-                draw_text("$120","white","black",1190,160)
+                match selected_monkey.upgrade_level:
+                        case 1:
+                            sell_monkey = 120
+                        case 2:
+                            sell_monkey = 200
+                        case 3:
+                            sell_monkey = 280
+                        case 4:
+                            sell_monkey = 360
+                draw_text(f"${sell_monkey}","white","black",1190,160)
                 if sellbutton.draw(screen):
                     selected_monkey.sell_monkey()
                     selected_monkey = None
@@ -194,10 +211,6 @@ def game():
                 balloons_group.empty()
                 monkey_group.empty()
 
-        # draw_text(str(map.health),"white","black",70,20)
-        # draw_text("$"+ str(map.money),"white","black",200,20)
-        # draw_text("Wave "+ str(map.level),"yellow","black",500,20)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -210,7 +223,7 @@ def game():
                     if put_monkey:
                         if map.money >= buy_monkey:
                             if Map.valid_position(mouse_position[0],mouse_position[1]) == True:
-                                monkey = Monkey(monkey_sheet,mouse_position)
+                                monkey = Monkey(monkey_sheet,mouse_position,pop_sound_effect)
                                 monkey_group.add(monkey)
                                 map.money -= buy_monkey
                             else:
@@ -225,7 +238,7 @@ def game():
         if invalid_time is not None:
             current_time = pygame.time.get_ticks()
             if current_time - invalid_time < message_duration:
-                draw_text("Invalid Placement","red","black",500,75)
+                draw_text("Invalid Placement","red","black",450,75)
             else:
                 invalid_time = None  
         
@@ -239,8 +252,8 @@ def game():
         screen.blit(coin_image,(150,10))
         draw_text(str(map.health),"white","black",70,20)
         draw_text("$"+ str(map.money),"white","black",200,20)
-        draw_text("Wave "+ str(name()),"yellow","black",500,20)
-        pygame.draw.lines(screen,"grey0", False, path)
+        draw_text("Wave " + str(name()) + " / 20","yellow","black",500,20)
+        # pygame.draw.lines(screen,"grey0", False, path)
         pygame.display.update()
         clock.tick(60)
 
