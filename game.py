@@ -59,7 +59,8 @@ fast_forward_button = pygame.image.load("assets/Images/GameMenu/FastForward.png"
 restart_button = pygame.image.load("assets/Images/GameMenu/restartButton.png").convert_alpha()
 health_image = pygame.image.load("assets/Images/GameMenu/Health.png").convert_alpha()
 coin_image = pygame.image.load("assets/Images/GameMenu/Coin.png").convert_alpha()
-play_image = pygame.image.load("assets/Images/GameMenu/playButton.png").convert_alpha()
+music_on = pygame.image.load("assets/Images/GameMenu/musicOn.png").convert_alpha()
+music_off = pygame.image.load("assets/Images/GameMenu/musicOff.png").convert_alpha()
 
 # --- Load Balloon Assets ---
 balloons_images = {
@@ -81,6 +82,7 @@ class TowerDefenseGame:
         self.put_monkey = False
         self.selected_monkey = None
         self.invalid_time = None
+        self.music_state = None
 
         # Track the time when game start 
         self.last_balloon_spawn = pygame.time.get_ticks() 
@@ -92,6 +94,7 @@ class TowerDefenseGame:
         self.message_duration = MESSAGE_DURATION
         self.total_wave = TOTAL_WAVE
         self.game_outcome = GAME_OUTCOME
+        self.music_volume = MUSIC_VOLUME
 
         # Set up map and processing balloons
         self.map_instance = Map(map_image)
@@ -109,6 +112,9 @@ class TowerDefenseGame:
         self.restartbutton = MonkeyMenu(restart_button, 500, 330, True)
         self.startbutton = MonkeyMenu(start_button, 1150, 620, True)
         self.fastforwardbutton = MonkeyMenu(fast_forward_button, 1150, 620, False)
+        self.musicon = MonkeyMenu(music_on,930,10,True)
+        self.musicoff = MonkeyMenu(music_off,930,10,True)
+        
 
 
     def handle_events(self):
@@ -245,6 +251,36 @@ class TowerDefenseGame:
                 self.map_instance.reset_wave()
                 self.map_instance.process_balloons()
 
+            # If the sound image is pressed the music will mute 
+            if self.music_state == None:
+                if self.musicon.draw(screen):
+                    # mute music
+                    self.music_volume = 0
+                    pygame.mixer.music.set_volume(self.music_volume)
+                    pop_sound_effect.set_volume(self.music_volume)
+                    
+                    # remove the music on image
+                    self.musicon.remove_menu()
+
+                    # displaying the music off image
+                    self.musicoff.draw(screen)
+                    self.music_state = False
+
+            # If the sound image is pressed the music will unmute 
+            elif self.music_state == False:
+                if self.musicoff.draw(screen):
+                    # unmute music
+                    self.music_volume = 0.1
+                    pygame.mixer.music.set_volume(self.music_volume)
+                    pop_sound_effect.set_volume(self.music_volume * 5)
+
+                    # remove the music off image
+                    self.musicoff.remove_menu()
+
+                    # displaying the music on image
+                    self.musicon.draw(screen)
+                    self.music_state = None
+
             # Displaying each monkey from the monkey group to the screen
             for monkey in self.monkey_group:
                 monkey.draw(screen)
@@ -360,7 +396,7 @@ class TowerDefenseGame:
         """Main game loop."""
         pygame.mixer.music.load("assets/sound/gameMusic.mp3")
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(MUSIC_VOLUME)
+        pygame.mixer.music.set_volume(self.music_volume)
 
         # Loop the game 
         while self.running:
