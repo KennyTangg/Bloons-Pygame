@@ -17,16 +17,15 @@ class Monkey(pygame.sprite.Sprite):
         self.range = monkey_data[self.upgrade_level - 1].get("range")
         self.cooldown = monkey_data[self.upgrade_level - 1].get("cooldown")
         
-        # attribute for checking if monkey is selected and 
-        # attribute for current target and a rectangle for the monkey 
-        self.selected = False
-        self.target = None
-        self.rect = self.image.get_rect(midbottom = position)
-
-
         # tracking the time for the last attack and time for frame update
         self.last_attack = pygame.time.get_ticks()
         self.update_time = pygame.time.get_ticks()
+
+        # set attributes for set of monkey images for animation , 
+        # monkey position and sound effect
+        self.sprite_sheet = sprite_sheet
+        self.position = position
+        self.sound = sound
 
         # attribute for list of monkey frames for animation and 
         # attribute for image from the list of frames and 
@@ -35,11 +34,11 @@ class Monkey(pygame.sprite.Sprite):
         self.frame_index = 0
         self.image = self.animation_list[self.frame_index]
 
-        # set attributes for set of monkey images for animation , 
-        # monkey position and sound effect
-        self.sprite_sheet = sprite_sheet
-        self.position = position
-        self.sound = sound
+        # attribute for checking if monkey is selected and 
+        # attribute for current target and a rectangle for the monkey 
+        self.selected = False
+        self.target = None
+        self.rect = self.image.get_rect(midbottom = position)
 
         # Attribute to show surface of the monkey attack range
         self.range_image = pygame.Surface((self.range * 2,self.range * 2))
@@ -52,7 +51,7 @@ class Monkey(pygame.sprite.Sprite):
 
     def load_images(self):
         '''Load the monkey's animation frames from the sprite sheet.'''
-        size  = self.sprite_sheet.get_height()
+        size  = self.sprite_sheet.get_height() 
         animation_list = []
         # looping 8 times because the frames is 8 frames 
         for i in range(8):
