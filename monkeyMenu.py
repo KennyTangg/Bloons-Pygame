@@ -1,8 +1,9 @@
 import pygame 
 
 # Defines the MonkeyMenu class
-class MonkeyMenu():
+class MonkeyMenu(pygame.sprite.Sprite):
     def __init__(self,image,x,y,single_click):
+        super().__init__()
         # Set the attributes
         self.image = image
         self.rect = self.image.get_rect(topleft = (x,y))
@@ -26,3 +27,6 @@ class MonkeyMenu():
         screen.blit(self.image,self.rect)
         
         return active
+    
+    def remove_menu(self):
+        self.kill()
