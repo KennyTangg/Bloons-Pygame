@@ -43,6 +43,7 @@ pop_sound_effect.set_volume(POP_SOUND_VOLUME)
 
 # --- Load Map Image ---
 map_image = pygame.image.load("assets/Images/Map/map2.png").convert()
+mainmenu_image = pygame.image.load("assets/Images/Map/map1.png").convert()
 
 # --- Load Monkey Assets ---
 monkey_image = pygame.image.load("assets/Images/Monkey/Monkey.png").convert_alpha()
@@ -55,6 +56,7 @@ cancelmenu_button = pygame.image.load("assets/Images/GameMenu/cancelMenu.png").c
 upgrade_monkey_button = pygame.image.load("assets/Images/GameMenu/upgradeMonkey.png").convert_alpha()
 sell_button = pygame.image.load("assets/Images/GameMenu/sell.png").convert_alpha()
 start_button = pygame.image.load("assets/Images/GameMenu/beginButton.png").convert_alpha()
+play_button = pygame.image.load("assets/Images/GameMenu/playButton.png").convert_alpha()
 fast_forward_button = pygame.image.load("assets/Images/GameMenu/FastForward.png").convert_alpha()
 restart_button = pygame.image.load("assets/Images/GameMenu/restartButton.png").convert_alpha()
 health_image = pygame.image.load("assets/Images/GameMenu/Health.png").convert_alpha()
@@ -111,12 +113,11 @@ class TowerDefenseGame:
         self.sellbutton = MonkeyMenu(sell_button, 1030, 160, True)
         self.restartbutton = MonkeyMenu(restart_button, 500, 330, True)
         self.startbutton = MonkeyMenu(start_button, 1150, 620, True)
+        self.playbutton = MonkeyMenu(play_button, 540, 540, True)
         self.fastforwardbutton = MonkeyMenu(fast_forward_button, 1150, 620, False)
         self.musicon = MonkeyMenu(music_on,930,10,True)
         self.musicoff = MonkeyMenu(music_off,930,10,True)
         
-
-
     def handle_events(self):
         """Handle user input and quit events."""
         for event in pygame.event.get():
@@ -148,12 +149,18 @@ class TowerDefenseGame:
 
         # The width of the outline
         outline_width = 2
+
+        # Draw the outline
         for i in range(-outline_width, outline_width + 1):
             for j in range(-outline_width, outline_width + 1):
+
+                # Making sure the original text is not affected
                 if i != 0 or j != 0:
+                    # Displaying the text around the original text
                     outline_text = font.render(text, True, outline_color)
                     screen.blit(outline_text, (x + i, y + j))
 
+        # Displaying the text 
         txt = font.render(text, True, text_color)
         screen.blit(txt, (x, y))
 
@@ -162,7 +169,7 @@ class TowerDefenseGame:
 
         for monkey in self.monkey_group:
 
-            # if the mouse position is inside the monkey rectangle, it returns true
+            # If the mouse position is inside the monkey rectangle, it returns true
             if monkey.rect.collidepoint(mouse_position):
                 monkey.selected = True 
                 return monkey
@@ -178,7 +185,7 @@ class TowerDefenseGame:
     def name(self):
         """Determines the wave number for display."""
 
-        # showing current wave number
+        # Showing current wave number
         if self.map_instance.level <= 19:
             return self.map_instance.level + 1
         else:
@@ -244,7 +251,7 @@ class TowerDefenseGame:
                 self.map_instance.level += 1
 
                 # Making sure player can prepare before the next wave
-                # self.wave_started = False
+                self.wave_started = False
 
                 # Reset time tracking, wave and processing balloons 
                 self.last_balloon_spawn = pygame.time.get_ticks()
@@ -254,30 +261,30 @@ class TowerDefenseGame:
             # If the sound image is pressed the music will mute 
             if self.music_state == None:
                 if self.musicon.draw(screen):
-                    # mute music
+                    # Mute music
                     self.music_volume = 0
                     pygame.mixer.music.set_volume(self.music_volume)
                     pop_sound_effect.set_volume(self.music_volume)
                     
-                    # remove the music on image
+                    # Remove the music on image
                     self.musicon.remove_menu()
 
-                    # displaying the music off image
+                    # Displaying the music off image
                     self.musicoff.draw(screen)
                     self.music_state = False
 
             # If the sound image is pressed the music will unmute 
             elif self.music_state == False:
                 if self.musicoff.draw(screen):
-                    # unmute music
+                    # Unmute music
                     self.music_volume = 0.1
                     pygame.mixer.music.set_volume(self.music_volume)
                     pop_sound_effect.set_volume(self.music_volume * 5)
 
-                    # remove the music off image
+                    # Remove the music off image
                     self.musicoff.remove_menu()
 
-                    # displaying the music on image
+                    # Displaying the music on image
                     self.musicon.draw(screen)
                     self.music_state = None
 
@@ -293,9 +300,12 @@ class TowerDefenseGame:
             if self.put_monkey == True:
                 if self.cancelmenu.draw(screen) == True:
                     self.put_monkey = False
+
+                # Make the position of cursor same with monkey image
                 cursor_rect = monkey_image.get_rect()
                 cursor_position = pygame.mouse.get_pos()
                 cursor_rect.midbottom = cursor_position
+
                 # Displaying the monkey 
                 if cursor_position[0] <= 975:
                     screen.blit(monkey_image,cursor_rect)
@@ -369,33 +379,59 @@ class TowerDefenseGame:
     def handle_text_delay(self):
         """ Handling text delay """
 
-        # checking if the time has value or not 
+        # Checking if the time has value or not 
         if self.invalid_time != None:
+            
+            # Track the time since game started 
             current_time = pygame.time.get_ticks()
 
-            #give delay before the text stop displaying
+            # Give delay before the text stop displaying
             if current_time - self.invalid_time < self.message_duration:
                 self.draw_text("Invalid Placement","red","black",450,75)
             else:
                 self.invalid_time = None  
 
     def render_ui(self):
-        # displaying health and coin images 
+        # Displaying health and coin images 
         screen.blit(health_image,(30,15))
         screen.blit(coin_image,(150,10))
 
-        # displaying the value of health and coin as well as the number of wave
+        # Displaying the value of health and coin as well as the number of wave
         self.draw_text(str(self.map_instance.health),"white","black",70,20)
         self.draw_text("$"+ str(self.map_instance.money),"white","black",200,20)
         self.draw_text("Wave " + str(self.name()) + " / 20","yellow","black",500,20)
 
-        # # a line showing the game path 
+        # # A line showing the game path 
         # pygame.draw.lines(screen,"grey0", False, GAME_PATH)
+
+    def main_menu(self):
+        ''' Main menu screen '''
+
+        # Loop the menu
+        while self.running:
+            # A loop to make sure game is always ready for user input
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            # Image of main menu screen
+            screen.blit(mainmenu_image,(0,0))
+
+            # If the button is pressed the it will go to the game screen
+            if self.playbutton.draw(screen):
+                self.main_loop()
+            
+            # Update screen to the latest change
+            pygame.display.update()
 
     def main_loop(self):
         """Main game loop."""
+
+        # Game Music and set the music to loop
         pygame.mixer.music.load("assets/sound/gameMusic.mp3")
         pygame.mixer.music.play(-1)
+
+        # Set music volume
         pygame.mixer.music.set_volume(self.music_volume)
 
         # Loop the game 
@@ -404,15 +440,18 @@ class TowerDefenseGame:
             self.handle_events()
             self.handle_text_delay()
             self.render_ui()
+
+            # Update screen to the latest change
             pygame.display.update()
 
             # limit the screen to have 60 FPS
             clock.tick(FPS)
 
+        # Quit the program 
         pygame.quit()
 
 
 # Checking if the script is run directly or imported as a module
 if __name__ == "__main__":
     game = TowerDefenseGame()
-    game.main_loop()
+    game.main_menu()
