@@ -10,7 +10,7 @@ FPS = 60
 CAPTION = "Tower Defense Window"
 FONT_SIZE = 50
 POP_SOUND_VOLUME = 0.5
-MUSIC_VOLUME = 0.1
+MUSIC_VOLUME = 0.3
 BUY_MONKEY_COST = 150
 UPGRADE_MONKEY_COST = 100
 SELL_MONKEY_BASE_COST = 120
@@ -86,9 +86,10 @@ class TowerDefenseGame:
         self.invalid_time = None
         self.music_state = None
 
-        # Track the time when game start 
+        # --- Time and game progress management ---
         self.last_balloon_spawn = pygame.time.get_ticks() 
 
+        # --- Game-related constants ---
         self.buy_monkey = BUY_MONKEY_COST
         self.upgrade_monkey = UPGRADE_MONKEY_COST
         self.sell_monkey = SELL_MONKEY_BASE_COST
@@ -96,25 +97,32 @@ class TowerDefenseGame:
         self.message_duration = MESSAGE_DURATION
         self.total_wave = TOTAL_WAVE
         self.game_outcome = GAME_OUTCOME
+        self.lose = LOSE
+        self.win = WIN
         self.music_volume = MUSIC_VOLUME
 
-        # Set up map and processing balloons
+        # --- Map setup ---
         self.map_instance = Map(map_image)
         self.map_instance.process_balloons() 
 
-        # Set the groups
+        # --- Sprite groups ---
         self.balloons_group = pygame.sprite.Group()
         self.monkey_group = pygame.sprite.Group()
 
-        # Set up menus
+        # --- Menu and UI setup ---
+        # Monkey-related menus and buttons
         self.monkeymenu = MonkeyMenu(monkeymenu_button, 1000, 10, True)
         self.cancelmenu = MonkeyMenu(cancelmenu_button, 1150, 60, True)
         self.upgrademonkey = MonkeyMenu(upgrade_monkey_button, 1010, 240, True)
         self.sellbutton = MonkeyMenu(sell_button, 1030, 160, True)
+
+        # Game control buttons:
         self.restartbutton = MonkeyMenu(restart_button, 500, 330, True)
         self.startbutton = MonkeyMenu(start_button, 1150, 620, True)
         self.playbutton = MonkeyMenu(play_button, 540, 540, True)
         self.fastforwardbutton = MonkeyMenu(fast_forward_button, 1150, 620, False)
+
+        # Music control buttons:
         self.musicon = MonkeyMenu(music_on,930,10,True)
         self.musicoff = MonkeyMenu(music_off,930,10,True)
         
@@ -125,7 +133,8 @@ class TowerDefenseGame:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-                # If mouse button is pressed and the mouse button that is getting pressed is Left mouse button
+                # If mouse button is pressed and the mouse button 
+                # that is getting pressed is Left mouse button
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     mouse_position = pygame.mouse.get_pos() # Getting mouse cursor Position
                     if mouse_position[0] < 950 and mouse_position[1] > 75:
@@ -142,7 +151,7 @@ class TowerDefenseGame:
                                     self.invalid_time = pygame.time.get_ticks() 
                                     self.draw_text("Invalid Placement","red","black",500,75)
                         else:
-                            self.selected_monkey = self.select_monkey(mouse_position) 
+                            self.selected_monkey = self.select_monkey(mouse_position)
 
     def draw_text(self,text, text_color, outline_color, x, y):
         """Draws text with an outline effect."""
@@ -215,8 +224,7 @@ class TowerDefenseGame:
             self.map_instance.draw(screen)
             self.balloons_group.draw(screen)
             
-        # Handle balloon spawning 
-        if self.game_over == False:
+            # Handle balloon spawning 
             if self.wave_started != True:
                 # Show start button if wave is not start yet
                 if self.startbutton.draw(screen):
@@ -244,7 +252,7 @@ class TowerDefenseGame:
                         self.last_balloon_spawn = pygame.time.get_ticks()
 
             # Handle wave completion 
-            if self.map_instance.check_wave_complete():
+            if self.map_instance.check_wave_complete() == True:
 
                 # Rewarding player with money
                 self.map_instance.money += 100
@@ -260,7 +268,7 @@ class TowerDefenseGame:
 
             # If the sound image is pressed the music will mute 
             if self.music_state == None:
-                if self.musicon.draw(screen):
+                if self.musicon.draw(screen) == True:
                     # Mute music
                     self.music_volume = 0
                     pygame.mixer.music.set_volume(self.music_volume)
@@ -275,7 +283,7 @@ class TowerDefenseGame:
 
             # If the sound image is pressed the music will unmute 
             elif self.music_state == False:
-                if self.musicoff.draw(screen):
+                if self.musicoff.draw(screen) == True:
                     # Unmute music
                     self.music_volume = 0.1
                     pygame.mixer.music.set_volume(self.music_volume)
@@ -293,7 +301,7 @@ class TowerDefenseGame:
                 monkey.draw(screen)
 
             # When the menu is clicked, player can place the monkey
-            if self.monkeymenu.draw(screen):
+            if self.monkeymenu.draw(screen) == True:
                 self.put_monkey = True
 
             # When the player can place the monkey, they can sell the monkey as well
@@ -351,17 +359,17 @@ class TowerDefenseGame:
             pygame.draw.rect(screen,"dodgerblue",(300,200,500,300),border_radius = 30)
 
             # Game over screen
-            if self.game_outcome == -1:
+            if self.game_outcome == self.lose:
                 self.draw_text("GAME OVER","red","black",470,230)
                 self.draw_text("Restart","white","black",490,440)
 
             # Win screen
-            elif self.game_outcome == 1:
+            elif self.game_outcome == self.win:
                 self.draw_text(" YOU WIN !","yellow","black",480,230)
                 self.draw_text("Restart","white","black",490,440)
 
             # If player click the restart button, it will restart the game
-            if self.restartbutton.draw(screen):
+            if self.restartbutton.draw(screen) == True:
                 
                 # Restarting Attributes
                 self.game_over = False
