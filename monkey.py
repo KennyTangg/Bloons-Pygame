@@ -12,7 +12,7 @@ class Monkey(pygame.sprite.Sprite):
         '''Initialize the monkey sprite '''
         super().__init__() # Initialize the sprite using pygame Sprite class.
 
-        # set the range and cooldown for monkey depends on the pgrade level
+        # set the range and cooldown for monkey depends on the upgrade level
         self.upgrade_level = 1
         self.range = monkey_data[self.upgrade_level - 1].get("range")
         self.cooldown = monkey_data[self.upgrade_level - 1].get("cooldown")
@@ -74,7 +74,7 @@ class Monkey(pygame.sprite.Sprite):
                     self.target = balloons
                     self.target.health -= monkey_damage
                     self.sound.play()
-                    break
+                    break # make sure monkey can only target one balloon at a time
     
     def play_animation(self):
         '''Play the monkey attack animation and reset the animation after.'''
