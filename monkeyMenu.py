@@ -14,7 +14,7 @@ class MonkeyMenu(pygame.sprite.Sprite):
         position = pygame.mouse.get_pos()
         active = False
         # if mouse position is in the rectangle the condition will be True
-        if self.rect.collidepoint(position):
+        if self.rect.collidepoint(position) == True:
             # if left click is press it will return True
             if pygame.mouse.get_pressed()[0] == 1 and self.click == False:
                 # check if it is toggle or hold 
@@ -29,4 +29,5 @@ class MonkeyMenu(pygame.sprite.Sprite):
         return active
     
     def remove_menu(self):
+        ''' remove the menu '''
         self.kill()
